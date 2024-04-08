@@ -2,7 +2,10 @@
 /**
  * @package ActiveRecord
  */
+
 namespace ActiveRecord;
+
+use ReturnTypeWillChange;
 
 /**
  * An extension of PHP's DateTime class to provide dirty flagging and easier formatting options.
@@ -31,7 +34,7 @@ namespace ActiveRecord;
  * </code>
  *
  * @package ActiveRecord
- * @see http://php.net/manual/en/class.datetime.php
+ * @see     http://php.net/manual/en/class.datetime.php
  */
 class DateTime extends \DateTime implements DateTimeInterface
 {
@@ -43,29 +46,29 @@ class DateTime extends \DateTime implements DateTimeInterface
 	/**
 	 * Pre-defined format strings.
 	 */
-	public static $FORMATS = array(
-		'db'      => 'Y-m-d H:i:s',
-		'number'  => 'YmdHis',
-		'time'    => 'H:i',
-		'short'   => 'd M H:i',
-		'long'    => 'F d, Y H:i',
-		'atom'    => \DateTime::ATOM,
-		'cookie'  => \DateTime::COOKIE,
-		'iso8601' => \DateTime::ISO8601,
-		'rfc822'  => \DateTime::RFC822,
-		'rfc850'  => \DateTime::RFC850,
+	public static $FORMATS = [
+		'db' => 'Y-m-d H:i:s',
+		'number' => 'YmdHis',
+		'time' => 'H:i',
+		'short' => 'd M H:i',
+		'long' => 'F d, Y H:i',
+		'atom' => \DateTime::ATOM,
+		'cookie' => \DateTime::COOKIE,
+		'iso8601' => \DateTime::ATOM,
+		'rfc822' => \DateTime::RFC822,
+		'rfc850' => \DateTime::RFC850,
 		'rfc1036' => \DateTime::RFC1036,
 		'rfc1123' => \DateTime::RFC1123,
 		'rfc2822' => \DateTime::RFC2822,
 		'rfc3339' => \DateTime::RFC3339,
-		'rss'     => \DateTime::RSS,
-		'w3c'     => \DateTime::W3C);
+		'rss' => \DateTime::RSS,
+		'w3c' => \DateTime::W3C,
+	];
 
 	private $model;
 	private $attribute_name;
 
-	public function attribute_of($model, $attribute_name)
-	{
+	public function attribute_of($model, $attribute_name): void {
 		$this->model = $model;
 		$this->attribute_name = $attribute_name;
 	}
@@ -79,13 +82,13 @@ class DateTime extends \DateTime implements DateTimeInterface
 	 * $datetime->format('Y-m-d');  # Y-m-d
 	 * </code>
 	 *
+	 * @param string $format A format string accepted by get_format()
+	 *
+	 * @return string formatted date and time string
 	 * @see FORMATS
 	 * @see get_format
-	 * @param string $format A format string accepted by get_format()
-	 * @return string formatted date and time string
 	 */
-	public function format($format=null)
-	{
+	#[ReturnTypeWillChange] public function format($format = null): string {
 		return parent::format(self::get_format($format));
 	}
 
@@ -95,19 +98,21 @@ class DateTime extends \DateTime implements DateTimeInterface
 	 * If $format is a pre-defined format in $FORMATS it will return that otherwise
 	 * it will assume $format is a format string itself.
 	 *
-	 * @see FORMATS
 	 * @param string $format A pre-defined string format or a raw format string
+	 *
 	 * @return string a format string
+	 * @see FORMATS
 	 */
-	public static function get_format($format=null)
-	{
+	public static function get_format($format = null): ?string {
 		// use default format if no format specified
-		if (!$format)
+		if (!$format) {
 			$format = self::$DEFAULT_FORMAT;
+		}
 
 		// format is a friendly
-		if (array_key_exists($format, self::$FORMATS))
-			 return self::$FORMATS[$format];
+		if (array_key_exists($format, self::$FORMATS)) {
+			return self::$FORMATS[$format];
+		}
 
 		// raw format
 		return $format;
@@ -117,19 +122,19 @@ class DateTime extends \DateTime implements DateTimeInterface
 	 * This needs to be overriden so it returns an instance of this class instead of PHP's \DateTime.
 	 * See http://php.net/manual/en/datetime.createfromformat.php
 	 */
-	public static function createFromFormat($format, $time, $tz = null)
-	{
+	#[ReturnTypeWillChange] public static function createFromFormat($format, $time, $tz = null): \DateTime|bool|static {
 		$phpDate = $tz ? parent::createFromFormat($format, $time, $tz) : parent::createFromFormat($format, $time);
-		if (!$phpDate)
+		if (!$phpDate) {
 			return false;
+		}
 		// convert to this class using the timestamp
-		$ourDate = new static(null, $phpDate->getTimezone());
+		$ourDate = new static('now', $phpDate->getTimezone());
 		$ourDate->setTimestamp($phpDate->getTimestamp());
+
 		return $ourDate;
 	}
 
-	public function __toString()
-	{
+	public function __toString() {
 		return $this->format();
 	}
 
@@ -141,63 +146,63 @@ class DateTime extends \DateTime implements DateTimeInterface
 	 *
 	 * @return void
 	 */
-	public function __clone()
-	{
+	public function __clone() {
 		$this->model = null;
 		$this->attribute_name = null;
 	}
 
-	private function flag_dirty()
-	{
-		if ($this->model)
+	private function flag_dirty(): void {
+		if ($this->model) {
 			$this->model->flag_dirty($this->attribute_name);
+		}
 	}
 
-	public function setDate($year, $month, $day)
-	{
+	#[ReturnTypeWillChange] public function setDate($year, $month, $day): \DateTime|DateTime {
 		$this->flag_dirty();
+
 		return parent::setDate($year, $month, $day);
 	}
 
-	public function setISODate($year, $week , $day = 1)
-	{
+	#[ReturnTypeWillChange] public function setISODate($year, $week, $day = 1): \DateTime|DateTime {
 		$this->flag_dirty();
+
 		return parent::setISODate($year, $week, $day);
 	}
 
-	public function setTime($hour, $minute, $second = 0, $microseconds = 0)
-	{
+	#[ReturnTypeWillChange] public function setTime($hour, $minute, $second = 0,
+	                                                $microseconds = 0): \DateTime|DateTime {
 		$this->flag_dirty();
+
 		return parent::setTime($hour, $minute, $second);
 	}
 
-	public function setTimestamp($unixtimestamp)
-	{
+	#[ReturnTypeWillChange] public function setTimestamp($unixtimestamp): \DateTime|DateTime {
 		$this->flag_dirty();
+
 		return parent::setTimestamp($unixtimestamp);
 	}
 
-	public function setTimezone($timezone)
-	{
+	#[ReturnTypeWillChange] public function setTimezone($timezone): \DateTime|DateTime {
 		$this->flag_dirty();
+
 		return parent::setTimezone($timezone);
 	}
-	
-	public function modify($modify)
-	{
+
+	#[ReturnTypeWillChange] public function modify($modify): \DateTime|bool|DateTime {
 		$this->flag_dirty();
+
 		return parent::modify($modify);
 	}
-	
-	public function add($interval)
-	{
+
+	#[ReturnTypeWillChange] public function add($interval): \DateTime|DateTime {
 		$this->flag_dirty();
+
 		return parent::add($interval);
 	}
 
-	public function sub($interval)
-	{
+	#[ReturnTypeWillChange] public function sub($interval): \DateTime|DateTime {
 		$this->flag_dirty();
+
 		return parent::sub($interval);
 	}
 
