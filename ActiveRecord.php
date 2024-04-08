@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 80100) {
 	die('PHP ActiveRecord requires PHP 8.1 or higher');
 }
 
-const PHP_ACTIVERECORD_VERSION_ID = '2.0.1';
+const PHP_ACTIVERECORD_VERSION_ID = '2.0.2';
 
 require __DIR__ . '/lib/Singleton.php';
 require __DIR__ . '/lib/Config.php';
@@ -22,3 +24,31 @@ require __DIR__ . '/lib/Inflector.php';
 require __DIR__ . '/lib/CallBack.php';
 require __DIR__ . '/lib/Exceptions.php';
 require __DIR__ . '/lib/Cache.php';
+
+if (!defined('PHP_ACTIVERECORD_AUTOLOAD_DISABLE')) {
+	spl_autoload_register('activerecord_autoload');
+}
+
+function activerecord_autoload($class_name): void {
+	$path = ActiveRecord\Config::instance()
+	                           ->get_model_directory();
+	$root = realpath($path ?? '.');
+
+	if (($namespaces = ActiveRecord\get_namespaces($class_name))) {
+		$class_name = array_pop($namespaces);
+		$directories = [];
+
+		foreach ($namespaces as $directory) {
+			$directories[] = $directory;
+		}
+
+		$root .= DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $directories);
+	}
+
+	$file = "$root/$class_name.php";
+
+	if (file_exists($file)) {
+		require_once $file;
+	}
+}
+
