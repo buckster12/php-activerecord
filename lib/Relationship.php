@@ -483,6 +483,7 @@ class HasMany extends AbstractRelationship
 
 	private $has_one = false;
 	private $through;
+	private $initialized;
 
 	/**
 	 * Constructs a {@link HasMany} relationship.
