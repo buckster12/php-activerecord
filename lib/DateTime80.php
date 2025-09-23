@@ -6,6 +6,7 @@ namespace ActiveRecord;
 
 /**
  * An extension of PHP's DateTime class to provide dirty flagging and easier formatting options.
+ * PHP 8.0+ compatible version.
  *
  * All date and datetime fields from your database will be created as instances of this class.
  *
@@ -84,7 +85,7 @@ class DateTime extends \DateTime implements DateTimeInterface
 	 * @param string $format A format string accepted by get_format()
 	 * @return string formatted date and time string
 	 */
-	public function format($format=null):string
+	public function format($format=null): string
 	{
 		return parent::format(self::get_format($format));
 	}
@@ -99,7 +100,7 @@ class DateTime extends \DateTime implements DateTimeInterface
 	 * @param string $format A pre-defined string format or a raw format string
 	 * @return string a format string
 	 */
-	public static function get_format($format=null)
+	public static function get_format(?string $format=null): string
 	{
 		// use default format if no format specified
 		if (!$format)
@@ -117,9 +118,9 @@ class DateTime extends \DateTime implements DateTimeInterface
 	 * This needs to be overriden so it returns an instance of this class instead of PHP's \DateTime.
 	 * See http://php.net/manual/en/datetime.createfromformat.php
 	 */
-	public static function createFromFormat($format, $time, $tz = null):\DateTime
+	public static function createFromFormat($format, $datetime, $timezone = null): \DateTime|false
 	{
-		$phpDate = $tz ? parent::createFromFormat($format, $time, $tz) : parent::createFromFormat($format, $time);
+		$phpDate = $timezone ? parent::createFromFormat($format, $datetime, $timezone) : parent::createFromFormat($format, $datetime);
 		if (!$phpDate)
 			return false;
 		// convert to this class using the timestamp
@@ -128,7 +129,7 @@ class DateTime extends \DateTime implements DateTimeInterface
 		return $ourDate;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->format();
 	}
@@ -153,49 +154,49 @@ class DateTime extends \DateTime implements DateTimeInterface
 			$this->model->flag_dirty($this->attribute_name);
 	}
 
-	public function setDate(int $year, int $month, int $day):\DateTime
+	public function setDate(int $year, int $month, int $day): \DateTime
 	{
 		$this->flag_dirty();
 		return parent::setDate($year, $month, $day);
 	}
 
-	public function setISODate(int $year, int $week , int $day = 1):\DateTime
+	public function setISODate(int $year, int $week , int $dayOfWeek = 1): \DateTime
 	{
 		$this->flag_dirty();
-		return parent::setISODate($year, $week, $day);
+		return parent::setISODate($year, $week, $dayOfWeek);
 	}
 
-	public function setTime(int $hour, int $minute, int $second = 0, int $microseconds = 0):\DateTime
+	public function setTime(int $hour, int $minute, int $second = 0, int $microsecond = 0): \DateTime
 	{
 		$this->flag_dirty();
-		return parent::setTime($hour, $minute, $second);
+		return parent::setTime($hour, $minute, $second, $microsecond);
 	}
 
-	public function setTimestamp(int $unixtimestamp):\DateTime
+	public function setTimestamp(int $timestamp): \DateTime
 	{
 		$this->flag_dirty();
-		return parent::setTimestamp($unixtimestamp);
+		return parent::setTimestamp($timestamp);
 	}
 
-	public function setTimezone(\DateTimeZone $timezone):\DateTime
+	public function setTimezone(\DateTimeZone $timezone): \DateTime
 	{
 		$this->flag_dirty();
 		return parent::setTimezone($timezone);
 	}
 
-	public function modify(string $modify):DateTime
+	public function modify(string $modifier): \DateTime|false
 	{
 		$this->flag_dirty();
-		return parent::modify($modify);
+		return parent::modify($modifier);
 	}
 
-	public function add(\DateInterval $interval):\DateTime
+	public function add(\DateInterval $interval): \DateTime
 	{
 		$this->flag_dirty();
 		return parent::add($interval);
 	}
 
-	public function sub(\DateInterval $interval):\DateTime
+	public function sub(\DateInterval $interval): \DateTime
 	{
 		$this->flag_dirty();
 		return parent::sub($interval);

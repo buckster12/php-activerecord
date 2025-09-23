@@ -11,7 +11,12 @@ require __DIR__ . '/lib/Singleton.php';
 require __DIR__ . '/lib/Config.php';
 require __DIR__ . '/lib/Utils.php';
 require __DIR__ . '/lib/DateTimeInterface.php';
-require __DIR__ . '/lib/DateTime.php';
+if (PHP_VERSION_ID >= 80000) {
+	require __DIR__ . '/lib/DateTime80.php';
+} else {
+	require __DIR__ . '/lib/DateTime74.php';
+}
+
 require __DIR__ . '/lib/Model.php';
 require __DIR__ . '/lib/Table.php';
 require __DIR__ . '/lib/ConnectionManager.php';
@@ -25,7 +30,7 @@ require __DIR__ . '/lib/Exceptions.php';
 require __DIR__ . '/lib/Cache.php';
 
 if (!defined('PHP_ACTIVERECORD_AUTOLOAD_DISABLE'))
-    spl_autoload_register('activerecord_autoload', false, PHP_ACTIVERECORD_AUTOLOAD_PREPEND);
+    spl_autoload_register('activerecord_autoload');
 
 function activerecord_autoload($class_name)
 {
