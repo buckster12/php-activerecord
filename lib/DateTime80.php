@@ -124,7 +124,7 @@ class DateTime extends \DateTime implements DateTimeInterface
 		if (!$phpDate)
 			return false;
 		// convert to this class using the timestamp
-		$ourDate = new static(null, $phpDate->getTimezone());
+		$ourDate = new static('now', $phpDate->getTimezone());
 		$ourDate->setTimestamp($phpDate->getTimestamp());
 		return $ourDate;
 	}
