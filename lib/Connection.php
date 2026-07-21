@@ -487,7 +487,9 @@ abstract class Connection
 		$date = date_create($string);
 		$errors = \DateTime::getLastErrors();
 
-		if ($errors['warning_count'] > 0 || $errors['error_count'] > 0)
+		// PHP 8.2: DateTime::getLastErrors() returns false when there are no
+		// warnings/errors (previously always an array).
+		if ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
 			return null;
 
 		$date_class = Config::instance()->get_date_class();
