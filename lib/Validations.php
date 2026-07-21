@@ -40,6 +40,7 @@ use ReturnTypeWillChange;
  * @see Errors
  * @link http://www.phpactiverecord.org/guides/validations
  */
+#[\AllowDynamicProperties]
 class Validations
 {
 	private $model;

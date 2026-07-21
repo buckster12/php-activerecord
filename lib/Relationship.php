@@ -22,6 +22,7 @@ interface InterfaceRelationship
  * @package ActiveRecord
  * @see http://www.phpactiverecord.org/guides/associations
  */
+#[\AllowDynamicProperties]
 abstract class AbstractRelationship implements InterfaceRelationship
 {
 	/**
